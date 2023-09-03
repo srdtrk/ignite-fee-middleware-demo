@@ -3,11 +3,7 @@ name: Build Chain
 on:
   push:
     branches:
-      - main  # Replace with your default branch if it's not 'main'
-    paths:
-      - '**.go'
-      - 'go.mod'
-      - 'go.sum'
+      - main
 
 jobs:
   build:
