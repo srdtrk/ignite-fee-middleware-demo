@@ -1,0 +1,24 @@
+name: Build Chain
+
+on:
+  push:
+    branches:
+      - main  # Replace with your default branch if it's not 'main'
+    paths:
+      - '**.go'
+      - 'go.mod'
+      - 'go.sum'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-arch: ['amd64', 'arm', 'arm64']
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+      - name: Build foo
+        run: GOARCH=${{ matrix.go-arch }} LEDGER_ENABLED=false make build
