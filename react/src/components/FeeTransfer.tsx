@@ -62,6 +62,8 @@ export default function IgntFeeTransfer(props: IgntSendProps) {
   const client = useClient();
   const sendMsgSend = client.CosmosBankV1Beta1.tx.sendMsgSend;
   const sendMsgTransfer = client.IbcApplicationsTransferV1.tx.sendMsgTransfer;
+  const msgTransfer = client.IbcApplicationsTransferV1.tx.msgTransfer;
+  const msgPayPacketFee = client.IbcApplicationsFeeV1.tx.msgPayPacketFee;
   const { address } = useAddressContext();
   const { balances } = useAssets(100);
 
@@ -126,9 +128,16 @@ export default function IgntFeeTransfer(props: IgntSendProps) {
       amount: x.amount == "" ? "0" : x.amount,
     }));
 
+    const relayerFee: Array<Amount> = state.tx.relayerFee.map((x) => ({
+      denom: x.denom,
+      amount: x.amount == "" ? "0" : x.amount,
+    }));
+
     const memo = state.tx.memo;
 
     const isIBC = state.tx.ch !== "";
+
+    const isFee = relayerFee.length > 0;
 
     let send;
 
@@ -139,7 +148,7 @@ export default function IgntFeeTransfer(props: IgntSendProps) {
     };
     setState((oldState) => ({ ...oldState, currentUIState: UI_STATE.TX_SIGNING }));
     try {
-      if (isIBC) {
+      if (isIBC && !isFee) {
         payload = {
           ...payload,
           sourcePort: "transfer",
@@ -157,6 +166,39 @@ export default function IgntFeeTransfer(props: IgntSendProps) {
             fee: { amount: fee as Readonly<Amount>[], gas: "200000" },
             memo,
           });
+      } else if (isIBC && isFee) {
+        // ...
+        const payFeeMsg = msgPayPacketFee({
+          value: {
+            signer: address,
+            sourcePortId: "transfer",
+            sourceChannelId: state.tx.ch,
+            relayers: [],
+            fee: {
+              recvFee: relayerFee,
+              ackFee: relayerFee,
+              timeoutFee: relayerFee,
+            },
+          },
+        });
+
+        payload = {
+          ...payload,
+          sourcePort: "transfer",
+          sourceChannel: state.tx.ch,
+          sender: address,
+          receiver: state.tx.receiver,
+          timeoutHeight: 0,
+          timeoutTimestamp: Long.fromNumber(new Date().getTime() + 60000).multiply(1000000),
+          token: state.tx.amount[0],
+        };
+
+        const transferMsg = msgTransfer({
+          value: payload,
+        });
+
+        send = () =>
+          client.signAndBroadcast([payFeeMsg, transferMsg], { amount: fee as Readonly<Amount>[], gas: "200000" }, memo);
       } else {
         send = () =>
           sendMsgSend({
