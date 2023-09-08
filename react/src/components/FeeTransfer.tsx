@@ -48,7 +48,7 @@ interface State {
 const initialState: State = {
   tx: {
     receiver: "",
-    ch: "channel-0",
+    ch: "",
     amount: [],
     memo: "",
     fees: [],
@@ -87,8 +87,7 @@ export default function IgntFeeTransfer(props: IgntSendProps) {
   );
   const validTxAmount = useMemo(
     () =>
-      state.tx.amount.length == 1 &&
-      state.tx.amount.every((x) => {
+      state.tx.amount.some((x) => {
         const parsedAmount = parseAmount(x.amount);
         return !parsedAmount.isNaN() && parsedAmount.isPositive() && !parsedAmount.isZero();
       }),
@@ -137,7 +136,7 @@ export default function IgntFeeTransfer(props: IgntSendProps) {
 
     const isIBC = state.tx.ch !== "";
 
-    const isFee = relayerFee.length > 0;
+    const isFee = state.tx.relayerFee.length > 0;
 
     let send;
 
