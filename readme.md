@@ -1,5 +1,5 @@
 # foo
-**foo** is a blockchain built using Cosmos SDK and Tendermint and created with [Ignite CLI](https://ignite.com/cli).
+**foo** is a blockchain built using Cosmos SDK and Tendermint and created with [Ignite CLI](https://ignite.com/cli) `v0.27.1`. The goal of this repo is to demonstrate how to integrate the [IBC Fee Middleware](https://github.com/cosmos/ibc-go/tree/v7.3.0/modules/apps/29-fee) to a CosmosSDK chain and its front-end application.
 
 ## Get started
 
