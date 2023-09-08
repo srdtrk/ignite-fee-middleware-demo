@@ -147,7 +147,7 @@ export default function IgntFeeTransfer(props: IgntSendProps) {
     };
     setState((oldState) => ({ ...oldState, currentUIState: UI_STATE.TX_SIGNING }));
     try {
-      if (isIBC && !isFee) {
+      if (isIBC) {
         payload = {
           ...payload,
           sourcePort: "transfer",
@@ -159,45 +159,39 @@ export default function IgntFeeTransfer(props: IgntSendProps) {
           token: state.tx.amount[0],
         };
 
-        send = () =>
-          sendMsgTransfer({
-            value: payload,
-            fee: { amount: fee as Readonly<Amount>[], gas: "200000" },
-            memo,
-          });
-      } else if (isIBC && isFee) {
-        // ...
-        const payFeeMsg = msgPayPacketFee({
-          value: {
-            signer: address,
-            sourcePortId: "transfer",
-            sourceChannelId: state.tx.ch,
-            relayers: [],
-            fee: {
-              recvFee: relayerFee,
-              ackFee: relayerFee,
-              timeoutFee: relayerFee,
+        if (isFee) {
+          const payFeeMsg = msgPayPacketFee({
+            value: {
+              signer: address,
+              sourcePortId: "transfer",
+              sourceChannelId: state.tx.ch,
+              relayers: [],
+              fee: {
+                recvFee: relayerFee,
+                ackFee: relayerFee,
+                timeoutFee: relayerFee,
+              },
             },
-          },
-        });
+          });
 
-        payload = {
-          ...payload,
-          sourcePort: "transfer",
-          sourceChannel: state.tx.ch,
-          sender: address,
-          receiver: state.tx.receiver,
-          timeoutHeight: 0,
-          timeoutTimestamp: Long.fromNumber(new Date().getTime() + 60000).multiply(1000000),
-          token: state.tx.amount[0],
-        };
+          const transferMsg = msgTransfer({
+            value: payload,
+          });
 
-        const transferMsg = msgTransfer({
-          value: payload,
-        });
-
-        send = () =>
-          client.signAndBroadcast([payFeeMsg, transferMsg], { amount: fee as Readonly<Amount>[], gas: "200000" }, memo);
+          send = () =>
+            client.signAndBroadcast(
+              [payFeeMsg, transferMsg],
+              { amount: fee as Readonly<Amount>[], gas: "200000" },
+              memo,
+            );
+        } else {
+          send = () =>
+            sendMsgTransfer({
+              value: payload,
+              fee: { amount: fee as Readonly<Amount>[], gas: "200000" },
+              memo,
+            });
+        }
       } else {
         send = () =>
           sendMsgSend({
