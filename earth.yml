@@ -1,0 +1,42 @@
+version: 1
+accounts:
+- name: alice
+  coins:
+  - 1000token
+  - 100000000stake
+- name: bob
+  coins:
+  - 500token
+  - 100000000stake
+- name: anna
+  coins:
+  - 20000token
+  - 200000000stake
+  address: cosmos15ulrf36d4wdtrtqzkgaan9ylwuhs7k7qz753uk
+- name: bo
+  coins:
+  - 20000token
+  - 200000000stake
+  address: cosmos1uu38gkyed0dte5f9xk20p8wcppulsjt90s7f8h
+- name: charlie
+  coins:
+  - 20000token
+  - 200000000stake
+  address: cosmos1vapwvcsr0m32ptal6z6g9hjctywrw4yzyf6y6v
+- name: damian
+  coins:
+  - 20000token
+  - 200000000stake
+  address: cosmos1z9pvhwapqnp2la20thtdv4pwtw947qpwenxc9z
+faucet:
+  name: bob
+  coins:
+  - 5token
+  - 100000stake
+  host: 0.0.0.0:4500
+genesis:
+  chain_id: earth
+validators:
+- name: alice
+  bonded: 100000000stake
+  home: $HOME/.earth
