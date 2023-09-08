@@ -34,37 +34,11 @@ hermes keys add --key-name damian --chain mars --mnemonic-file damian.mnemonic
 
 These wallets are funded automatically with tokens on both chains due to `earth.yml` and `mars.yml` configuration files.
 
-## Hermes Run
-
-### Create Light Clients
-
-To create light clients for both chains you can use the following commands.
-
-```bash
-hermes create client --host-chain mars --reference-chain earth
-```
-
-```bash
-hermes create client --host-chain earth --reference-chain mars
-```
-
-### Create a Connection
-
-To create a connection between the two chains you can use the following command.
-
-```bash
-hermes create connection --a-chain earth --a-client 07-tendermint-0 --b-client 07-tendermint-0
-```
+## Run Hermes
 
 ### Create an Incentivized Transfer Channel
 
 To create an incentivized transfer channel between the two chains you can use the following command.
-
-```bash
-hermes create channel --channel-version '{"fee_version":"ics29-1","app_version":"ics20-1"}' --a-chain earth --a-connection connection-0 --a-port transfer --b-port transfer
-```
-
-Or you can use the following command to skip the previous two steps and create a connection and channel in one command.
 
 ```bash
 hermes create channel --channel-version '{"fee_version":"ics29-1","app_version":"ics20-1"}' --a-chain earth --b-chain mars --a-port transfer --b-port transfer --new-client-connection
@@ -82,8 +56,16 @@ And to stop the relayer, you can use `ctrl+c`.
 
 ### Register Counterparty Payee
 
-WIP
+The fee middleware requires that all fees are settled in the source chain. This means that if you are sending tokens from `earth` to `mars` then the fee must be paid in `earth` native tokens to an `earth` wallet. To do this, we need to register the counterparty payee on the `earth` chain for the releyer in `mars` chain.
 
 ```bash
-hermes fee register-counterparty-payee --chain earth --channel channel-0 --port transfer --counterparty-payee cosmos1vapwvcsr0m32ptal6z6g9hjctywrw4yzyf6y6v
+hermes fee register-counterparty-payee --chain mars --channel channel-0 --port transfer --counterparty-payee cosmos1vapwvcsr0m32ptal6z6g9hjctywrw4yzyf6y6v
 ```
+
+Note that Charlie is the relayer in the `earth` chain and Damian is the relayer in the `mars` chain. Therefore, the command above is registering Charlie as the counterparty payee on the `earth` chain for Damian in the `mars` chain. We should also do the converse and register Damian as the counterparty payee of Charly.
+
+```bash
+hermes fee register-counterparty-payee --chain earth --channel channel-0 --port transfer --counterparty-payee cosmos1uu38gkyed0dte5f9xk20p8wcppulsjt90s7f8h
+```
+
+Notice that since both chains are using the same wallet address prefix (i.e. `cosmos`), we could have registered Damian as the counterparty payee of Damian. However, this is not always the case.
