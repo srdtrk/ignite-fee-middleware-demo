@@ -41,7 +41,7 @@ These wallets are funded automatically with tokens on both chains due to `earth.
 To create an incentivized transfer channel between the two chains you can use the following command.
 
 ```bash
-hermes create channel --channel-version '{"fee_version":"ics29-1","app_version":"ics20-1"}' --a-chain earth --b-chain mars --a-port transfer --b-port transfer --new-client-connection
+hermes create channel --channel-version '{"fee_version":"ics29-1","app_version":"ics20-1"}' --a-chain earth --b-chain mars --a-port transfer --b-port transfer --new-client-connection --yes
 ```
 
 ### Start Relayer
