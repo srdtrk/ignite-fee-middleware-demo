@@ -127,10 +127,14 @@ export default function IgntFeeTransfer(props: IgntSendProps) {
       amount: x.amount == "" ? "0" : x.amount,
     }));
 
-    const relayerFee: Array<Amount> = state.tx.relayerFee.map((x) => ({
-      denom: x.denom,
-      amount: x.amount == "" ? "0" : x.amount,
-    }));
+    const relayerFee: Array<Amount> = state.tx.relayerFee.map((x) => {
+      const intAmount = x.amount == "" ? 0 : parseInt(x.amount, 10);
+      const newAmount = Math.floor(intAmount / 2);
+      return {
+        denom: x.denom,
+        amount: newAmount.toString(),
+      };
+    });
 
     const memo = state.tx.memo;
 
